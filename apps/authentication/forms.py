@@ -25,6 +25,22 @@ class LoginForm(FlaskForm):
     remember = BooleanField('Намайг сана')
     submit = SubmitField('Нэвтрэх')
 
+    def validate_email(self, field):
+        # Trim leading and trailing spaces from the email field
+        field.data = field.data.strip()
+
+        # Custom validation to check if email contains leading or trailing spaces
+        if ' ' in field.data:
+            raise ValidationError('Email should not contain leading or trailing spaces')
+
+    def validate_password(self, field):
+        # Trim leading and trailing spaces from the password field
+        field.data = field.data.strip()
+
+        # Custom validation for the password
+        if ' ' in field.data:
+            raise ValidationError('Password should not contain leading or trailing spaces')
+
 
 class CreateAccountForm(FlaskForm):
     username = StringField('Username',
@@ -39,6 +55,4 @@ class CreateAccountForm(FlaskForm):
 
 
 class UpdateExpenses(FlaskForm):
-
     expenseAmount = DecimalField('Amount', validators=[DataRequired()])
-
