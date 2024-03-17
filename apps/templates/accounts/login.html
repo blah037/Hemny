@@ -19,7 +19,7 @@
 
                     <span class="mb-0 text-muted">
                         {% if msg %}
-                            <span class="text-danger">{{  Имэйл эсвэл нууц үг буруу байна }}</span>
+                            <span class="text-danger">{{ msg | safe }}</span>
                         {% else %}
                             Мэдээллээ оруулнуу
                         {% endif %} 
@@ -40,11 +40,11 @@
                             {{ form.password(placeholder="Нууц үг", class="form-control", type="password") }}
                         </div>
                         
-                        <button type="submit" name="login" class="btn btn-primary shadow-2 mb-4">Login</button>
+                        <button type="submit" name="login" class="btn btn-primary shadow-2 mb-4">Нэвтрэх</button>
 
                     </form>
 
-                    <p class="mb-0 text-muted">Бүртгүүлж байгаагүй? <a href="{{ url_for('authentication_blueprint.register') }}" >Sign up</a></p>
+                    <p class="mb-0 text-muted">Бүртгүүлж байгаагүй? <a href="{{ url_for('authentication_blueprint.register') }}" >Бүртгүүлэх</a></p>
                     
                     {% if config.SOCIAL_AUTH_GITHUB %}
                         <div class="mx-2">
