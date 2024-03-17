@@ -49,7 +49,7 @@ def login():
 
             if not user:
                 return render_template('accounts/login.html',
-                                       msg='Unknown User or Email',
+                                       msg='Имэйл буруу байна',
                                        form=login_form)
 
         # Check the password
@@ -59,7 +59,7 @@ def login():
 
         # Incorrect password
         return render_template('accounts/login.html',
-                               msg='Wrong password',
+                               msg='Нууц үг буруу байна',
                                form=login_form)
 
     if current_user.is_authenticated:
@@ -80,7 +80,7 @@ def register():
         user = Users.query.filter_by(username=username).first()
         if user:
             return render_template('accounts/register.html',
-                                   msg='Username already registered',
+                                   msg='Нэр давхцаж байна',
                                    success=False,
                                    form=create_account_form)
 
@@ -88,7 +88,7 @@ def register():
         user = Users.query.filter_by(email=email).first()
         if user:
             return render_template('accounts/register.html',
-                                   msg='Email already registered',
+                                   msg='Имэйл давхцаж байна',
                                    success=False,
                                    form=create_account_form)
 
@@ -101,7 +101,7 @@ def register():
         logout_user()
 
         return render_template('accounts/register.html',
-                               msg='User created successfully.',
+                               msg='Хэрэглэгч амжилттай бүртгэгдлээ.',
                                success=True,
                                form=create_account_form)
 
