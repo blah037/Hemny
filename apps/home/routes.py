@@ -3,18 +3,133 @@
 Copyright (c) 2019 - present AppSeed.us
 """
 import locale
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 
 from sqlalchemy import func
 
 from apps import db
 from apps.authentication.forms import LoginForm, UpdateExpenses
-from apps.authentication.models import Users, Expense, Income, Saving
+from apps.authentication.models import Users, Expense, Income, Saving, Budget
 from apps.home import blueprint
-from flask import render_template, request, redirect, url_for, flash
+from flask import render_template, request, redirect, url_for, flash, jsonify
 from flask_login import login_required, current_user
 from jinja2 import TemplateNotFound, TemplateError
+from decimal import Decimal
+from sqlalchemy import not_
 from flask_wtf import FlaskForm
+
+
+@blueprint.route('/get-goal-amounts', methods=['GET'])
+def get_goal_amounts():
+    # Get the selected goalName from the query parameters
+    selected_goal_name = request.args.get('goalName')
+
+    # Query the database to retrieve the targetAmount and savingAmount for the selected goalName
+    goal_data = Saving.query.filter_by(goalName=selected_goal_name).first()
+
+    # Check if the goal data exists
+    if goal_data:
+        # Construct a dictionary with the retrieved data
+        goal_amounts = {
+            'targetAmount': goal_data.targetAmount,
+            'savingAmount': goal_data.savingAmount
+        }
+        # Return the data as a JSON response
+        return jsonify(goal_amounts)
+    else:
+        # If the goal data doesn't exist, return an error message
+        return jsonify({'error': 'Goal data not found for selected goalName'}), 404
+
+
+@blueprint.route('/update-targetAmount', methods=['POST'])
+@login_required
+def update_targetAmount():
+    if request.method == 'POST':
+        # Get the target amount and goal name from the form data
+        saving_target = request.form.get('targetAmount')
+        new_goal_1 = request.form.get('new_goal_1')
+
+        try:
+            existing_goal = Saving.query.filter_by(goalName=new_goal_1).first()
+
+            # If the goal exists, update its target amount
+            if existing_goal:
+                existing_goal.targetAmount += int(saving_target)
+            # If the goal doesn't exist, create a new one
+            else:
+                saving_target_update = Saving(UserID=current_user.id, targetAmount=saving_target, goalName=new_goal_1,
+                                              savingAmount=0)
+                db.session.add(saving_target_update)
+
+            # Commit the changes to the database
+            db.session.commit()
+
+            return redirect(url_for('home_blueprint.index'))
+
+        # Handle any potential exceptions
+        except Exception as e:
+            # Log the error or handle it appropriately
+            print(f"An error occurred: {str(e)}")
+            return redirect(url_for('home_blueprint.index'))
+
+    # Handle other HTTP methods or errors
+    return redirect(url_for('home/page-500.html'))
+
+
+@blueprint.route('/update-savings', methods=['POST'])
+@login_required
+def update_savings():
+    if request.method == 'POST':
+        # Handle form submission to update profile information
+        new_saving = request.form.get('savingAmount')
+        new_goal = request.form.get('new_goal')
+
+        # Create new expensesaving
+        try:
+            existing_goal = Saving.query.filter_by(goalName=new_goal).first()
+
+            # If the goal exists, update its target amount
+            if existing_goal:
+                existing_goal.savingAmount += int(new_saving)
+            # If the goal doesn't exist, create a new one
+            else:
+                saving_amount_update = Saving(UserID=current_user.id, savingAmount=new_saving, goalName=new_goal,
+                                              targetAmount=0)
+                db.session.add(saving_amount_update)
+
+            # Commit the changes to the database
+            db.session.commit()
+
+            return redirect(url_for('home_blueprint.index'))
+
+        # Handle any potential exceptions
+        except Exception as e:
+            # Log the error or handle it appropriately
+            print(f"An error occurred: {str(e)}")
+            return redirect(url_for('home_blueprint.index'))
+
+    # Handle other HTTP methods or errors
+    return redirect(url_for('home/page-500.html'))
+
+
+@blueprint.route('/update-budget', methods=['POST'])
+@login_required
+def update_budget():
+    if request.method == 'POST':
+        # Get the daily and monthly budget limits from the form data
+        daily_limit = request.form.get('daily_limit')
+        monthly_limit = request.form.get('monthly_limit')
+
+        # Update the current user's budget limits in the database
+        budget = Budget(UserID=current_user.id, daily_limit=daily_limit, monthly_limit=monthly_limit)
+
+        db.session.add(budget)
+        db.session.commit()
+
+        return redirect(url_for('home_blueprint.index'))
+
+    # Handle other HTTP methods or errors
+    return redirect(url_for('home/page-500.html'))
 
 
 @blueprint.route('/update-profile', methods=['POST'])
@@ -84,23 +199,6 @@ def update_incomes():
         return redirect(url_for('home_blueprint.index'))
 
 
-@blueprint.route('/update-savings', methods=['POST'])
-@login_required
-def update_savings():
-    if request.method == 'POST':
-        # Handle form submission to update profile information
-        new_saving = request.form.get('savingAmount')
-
-        # Create new expensesaving
-        saving = Saving(UserID=current_user.id, savingAmount=new_saving)
-        db.session.add(saving)
-
-        db.session.commit()
-
-        flash('Expense added successfully', 'success')
-        return redirect(url_for('home_blueprint.index'))
-
-
 def total_expense_last_n_days(n_days):
     # Calculate the date n days ago
     start_date = datetime.now() - timedelta(days=n_days)
@@ -115,10 +213,8 @@ def total_expense_last_n_days(n_days):
     total_expense = total_expense or 0
 
     # Format the total expense amount for the last n days
-    formatted_total_expense = locale.format_string("%d", total_expense, grouping=True)
-    formatted_total_expense = formatted_total_expense.replace(',', "'")
 
-    return formatted_total_expense
+    return total_expense
 
 
 def total_income_last_n_days(n_days):
@@ -202,8 +298,11 @@ def index():
                                 {'category': 'Лизинг'}]
     income_categories_label = [{'category': 'Цалин'}, {'category': 'Түрээс'},
                                {'category': 'Лизинг'}]
+    saving_categories_label = [{'category': 'Гэнэтийн үеийн хадгаламж'}, {'category': 'Байрны хадгаламж'},
+                               {'category': 'Автомашины хадгаламж'}]
     expense_category_input = request.args.get('expense_category', 'Бусад')
     income_category_input = request.args.get('income_category', 'Бусад')
+    saving_category_input = request.args.get('saving_category', 'Бусад')
 
     periods = [{'label': '1 Өдөр', 'value': '1'}, {'label': '30 Өдөр', 'value': '30'},
                {'label': '365 Өдөр', 'value': '365'}]
@@ -214,8 +313,8 @@ def index():
     income_count = income_count_last_n_days(int(time_period))
 
     expense_category = str(expense_category_input)
-
     income_category = str(income_category_input)
+    saving_category = str(saving_category_input)
 
     # Display total expense
     total_expense_last_1_day = total_expense_last_n_days(1)
@@ -231,6 +330,51 @@ def index():
     total_saving_last_1_day = total_saving_last_n_days(1)
     total_saving_last_30_days = total_saving_last_n_days(30)
     total_saving_last_365_days = total_saving_last_n_days(365)
+
+    daily_limit = db.session.query(Budget.daily_limit). \
+        filter(Budget.UserID == current_user.id). \
+        filter(not_(Budget.daily_limit.is_(None))). \
+        order_by(Budget.id.desc()). \
+        first()
+    monthly_limit = db.session.query(Budget.monthly_limit). \
+        filter(Budget.UserID == current_user.id). \
+        filter(not_(Budget.monthly_limit.is_(None))). \
+        order_by(Budget.id.desc()). \
+        first()
+
+    if monthly_limit and daily_limit is not None and monthly_limit[0] and monthly_limit[0] is not None:
+        daily_limit = Decimal(daily_limit[0])
+        monthly_limit = Decimal(monthly_limit[0])
+    else:
+        daily_limit = Decimal(1)
+        monthly_limit = Decimal(1)
+    if monthly_limit != 0 or monthly_limit != 0:
+
+        time_period = int(time_period)
+        total_expense = total_expense_last_n_days(time_period)
+
+        if time_period == 1:  # Daily limit
+            limit = daily_limit
+        elif time_period == 30:  # Monthly limit
+            limit = monthly_limit
+        elif time_period == 365:  # Monthly limit
+            limit = monthly_limit
+        else:
+            raise ValueError("Invalid time period")
+
+        expense_progress = (total_expense / limit) * 100
+    else:
+        expense_progress = 0
+
+    if total_income_last_n_days != 0:
+        time_period = int(time_period)
+        total_income = total_income_last_n_days(time_period)
+    else:
+        pass
+
+    # Check if monthly_limit_row is not None before accessing its value
+
+    # Calculate monthly progress only if monthly_limit is not 0 to avoid division by zero error
 
     return render_template('home/index.html', segment='index',
                            total_expense_last_1_day=total_expense_last_1_day,
@@ -249,7 +393,14 @@ def index():
                            expense_category=expense_category,
                            expense_categories_label=expense_categories_label,
                            income_category=income_category,
-                           income_categories_label=income_categories_label
+                           income_categories_label=income_categories_label,
+                           saving_category=saving_category,
+                           saving_categories_label=saving_categories_label,
+                           daily_limit=daily_limit,
+                           monthly_limit=monthly_limit,
+                           expense_progress=expense_progress,
+                           total_expense=total_expense,
+                           total_income=total_income
                            )
 
 

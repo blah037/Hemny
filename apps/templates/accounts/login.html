@@ -28,7 +28,7 @@
                     <br />
                     <br />
 
-                    <form role="form" method="post" action="">
+                    <form role="form" method="post" id="login-form" action="">
 
                         {{ form.hidden_tag() }}                    
 
@@ -41,6 +41,28 @@
                         </div>
                         
                         <button type="submit" name="login" class="btn btn-primary shadow-2 mb-4">Нэвтрэх</button>
+
+                        <script>
+                            document.getElementById('login-form').addEventListener
+                            ('submit', function(event)
+                                {
+                                    const emailInput = document.getElementById('email').value.trim();
+                                    const passwordInput = document.getElementById('password').value.trim();
+
+                                    // Validate email and password
+                                if (emailInput === '' || passwordInput === '') {
+                                    alert('Нэр нууц үг дээр зай авахаас сэргийл.');
+                                    event.preventDefault(); // Prevent form submission
+
+                                }
+
+                                // Perform additional validation if needed (e.g., email format)
+
+                                // Submit the form if validation passes
+                                // Otherwise, prevent form submission
+                                }
+                            );
+                        </script>
 
                     </form>
 

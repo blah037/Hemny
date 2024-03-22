@@ -28,6 +28,7 @@ class Users(db.Model, UserMixin):
     incomes = db.relationship('Income', backref='owner', lazy=True)
     expenses = db.relationship('Expense', backref='owner', lazy=True)
     savings = db.relationship('Saving', backref='owner', lazy=True)
+    budgets = db.relationship('Budget', backref='owner', lazy=True)
 
     def __init__(self, **kwargs):
         for property1, value in kwargs.items():
@@ -45,6 +46,17 @@ class Users(db.Model, UserMixin):
 
     def __repr__(self):
         return f"User('{self.username}','{self.email}')"
+
+class Budget(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    UserID = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    user = db.relationship('Users', backref='user_budgets', lazy=True)
+    daily_limit = db.Column(db.DECIMAL(10, 2), nullable=True)
+    monthly_limit = db.Column(db.DECIMAL(10, 2), nullable=True)
+
+    def __repr__(self):
+        return f"Budget(ID: {self.id}, User: {self.UserID}," \
+               f" Daily Limit: {self.daily_limit}, Monthly Limit: {self.monthly_limit})"
 
 
 class Income(db.Model):
@@ -74,13 +86,12 @@ class Expense(db.Model):
         return f"Expense(ID: {self.id}, Category: {self.category}," \
                f" Amount: {self.expenseAmount}, DateSpent: {self.dateSpent})"
 
-
 class Saving(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     UserID = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     goalName = db.Column(db.String(255), nullable=True)
     targetAmount = db.Column(db.DECIMAL(10, 2), nullable=True)
-    savingAmount = db.Column(db.DECIMAL(10, 2), nullable=False)
+    savingAmount = db.Column(db.DECIMAL(10, 2), nullable=True)
     dateSaved = db.Column(db.DateTime, nullable=False, default=datetime.now(pytz.timezone('Asia/Shanghai')))
     deadline = db.Column(db.DateTime, nullable=True, default=None)
 
