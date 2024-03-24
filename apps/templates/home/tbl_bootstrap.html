@@ -107,6 +107,45 @@
                                         </div>
                                     </div>
                                 </div>
+
+
+
+                                <div class="col-xl-12">
+                                    <div class="card">
+                                        <div class="card-header">
+                                            <h5>Хадгаламжийн хүснэгт</h5>
+                                        </div>
+                                        <div class="card-block table-border-style">
+                                            <div class="table-responsive">
+                                                <table class="table table-hover">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>#</th>
+                                                            <th>Хадгаламжийн төрөл</th>
+                                                            <th>Хадгаламжийн зорилтот хэмжээ</th>
+                                                            <th>Хадгаламждах мөнгө</th>
+                                                            <th>Хадгаламжийн хугацаа</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                    {% for item in user_data %}
+                                                         {% for saving in item.savings %}
+                                                            <tr>
+                                                                <th scope="row">{{ loop.index }}</th>
+                                                                <td>{{ saving.goalName }}</td>
+                                                                <td>{{ saving.targetAmount }}₮</td>
+                                                                <td>{{ saving.savingAmount }}</td>
+                                                                <td>{{ saving.deadLine }}</td>
+                                                            </tr>
+
+                                                         {% endfor %}
+                                                    {% endfor %}
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                                 <!-- [ Hover-table ] end -->
 
                                 <!-- [ stiped-table ] start -->

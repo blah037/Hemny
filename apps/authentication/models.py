@@ -24,7 +24,7 @@ class Users(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(20), unique=True, nullable=False)
     email = db.Column(db.String(100), unique=True, nullable=False)
-    password = db.Column(db.String(60), nullable=False)
+    password = db.Column(db.String(255), nullable=False)
     incomes = db.relationship('Income', backref='owner', lazy=True)
     expenses = db.relationship('Expense', backref='owner', lazy=True)
     savings = db.relationship('Saving', backref='owner', lazy=True)
