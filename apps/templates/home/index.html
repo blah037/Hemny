@@ -10,12 +10,14 @@
     <!-- [ Main Content ] start -->
     <div class="pcoded-main-container">
         <div class="pcoded-wrapper">
-
             <div class="pcoded-content">
                 <div class="pcoded-inner-content">
                     <div class="main-body">
                         <div class="page-wrapper">
                             <div class="row">
+                            {# [Data info] start #}
+
+                                {# [өдрийн зардал] end #}
                                 <div class="col-md-6 col-xl-4">
                                     <div class="card daily-sales">
                                         <div class="card-block">
@@ -34,7 +36,7 @@
                                                         <i
                                                             class="feather icon-arrow-down text-c-green f-30 m-r-10">
                                                         </i>
-                                                        {{ total_expense }}₮
+                                                        {{'{:,.0f}'.format(total_expense)}}₮
                                                     </h3>
                                                 </div>
                                                 <div class="col-3 text-right">
@@ -50,8 +52,9 @@
                                         </div>
                                     </div>
                                 </div>
-                                <!--[ daily sales section ] end-->
-                                <!--[ Monthly  sales section ] starts-->
+                                {# [өдрийн зардал] end #}
+
+                                {# [өдрийн орлого] start #}
                                 <div class="col-md-6 col-xl-4">
                                     <div class="card Monthly-sales">
                                         <div class="card-block">
@@ -76,21 +79,34 @@
                                         </div>
                                     </div>
                                 </div>
-                                <!--[ Monthly  sales section ] end-->
-                                <!--[ year  sales section ] starts-->
+                                {# [өдрийн орлого] end #}
+
+                                {# [Хадгаламж] start #}
                                 <div class="col-md-12 col-xl-4">
                                     <div class="card yearly-sales">
                                         <div class="card-block">
-                                            <div class="btn-group-sm  float-right" id="saving_category">
+                                        <form action="/index" method="GET">
+                                            <div class="btn-group-sm float-right" id="saving_category">
                                                 <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                                     Төрөл сонгох
                                                 </button>
-                                                <div class="dropdown-menu" >
-                                                            {% for saving_category in saving_categories_label %}
-                                                                <a class="dropdown-item" href="{{ saving_category['category'] }}">{{ saving_category['category'] }}</a>
-                                                            {% endfor %}
+                                                <div class="dropdown-menu">
+                                                    {% for saving_category in saving_categories_label %}
+                                                        <a class="dropdown-item" href="#" onclick="selectCategory('{{ saving_category['category'] }}')">{{ saving_category['category'] }}</a>
+                                                    {% endfor %}
                                                 </div>
                                             </div>
+                                            <input type="hidden" name="selectedGoalName" id="selectedGoalName">
+                                            <button type="submit" style="display: none;"></button>
+                                        </form>
+
+                                        <script>
+                                            function selectCategory(category) {
+                                                document.getElementById('selectedGoalName').value = category;
+                                                document.querySelector('form').submit();
+                                            }
+                                        </script>
+
                                             <h6 class="mb-4">Хадгаламж</h6>
                                             <div class="row d-flex align-items-center">
                                                 <div class="col-9">
@@ -98,115 +114,194 @@
                                                         <i
                                                             class="feather icon-arrow-down text-c-green f-30 m-r-10">
                                                         </i>
-
-                                                        {{ total_saving_last_365_days }}₮
-
+                                                        {{'{:,.0f}'.format(saving_amount)}}₮
                                                     </h3>
                                                 </div>
                                                 <div class="col-3 text-right">
-                                                    <p class="m-b-0">80%</p>
+                                                    <p class="m-b-0">{{ "{:.0f}".format(completion_percentage) }}%</p>
                                                 </div>
                                             </div>
                                             <div class="progress m-t-30" style="height: 7px;">
                                                 <div class="progress-bar progress-c-theme" role="progressbar"
-                                                        style="width: 70%;" aria-valuenow="100" aria-valuemin="0"
+                                                        style="width: {{completion_percentage}}%;" aria-valuenow="100" aria-valuemin="0"
                                                         aria-valuemax="100">
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-                                <!--[ year  sales section ] end-->
+                                {# [Хадгаламж] end #}
 
+                            {# [Data info] end #}
 
+                                {# [Expense/Income input] start #}
                                 <div class="col-xl-6">
                                     <div class="card">
                                         <div class="card-header">
                                             <h5>Орлого/Зарлага хийх</h5>
                                         </div>
                                         <div class="card-block">
-                                                <div class="col-md-6">
-                                                    <form action="/update-expenses" method="POST">
-                                                        <div class="btn-group mb-2 mr-2 float-right" id="expense_category">
-                                                            <button id="expense_category_button" class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                                                Төрөл сонгох
-                                                            </button>
-                                                            <div class="dropdown-menu" >
-                                                                        {% for expense_category in expense_categories_label %}
-                                                                            <a class="dropdown-item category-select" href="#" data-category="{{ expense_category['category'] }}">{{ expense_category['category'] }}</a>
-                                                                        {% endfor %}
+                                            <div class="col-md-6">
+                                                <form action="/update-expenses" method="POST">
+                                                    <div class="btn-group mb-2 mr-2 float-right" id="expense_category">
+                                                        <button id="expense_category_button" class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                            Төрөл сонгох
+                                                        </button>
+                                                        <div class="dropdown-menu" >
+                                                                    {% for expense_category in expense_categories_label %}
+                                                                        <a class="dropdown-item category-select" href="#" data-category="{{ expense_category['category'] }}">{{ expense_category['category'] }}</a>
+                                                                    {% endfor %}
+                                                        </div>
+                                                    </div>
+                                                        <input type="hidden" id="selectedCategory" name="expenseCategory">
+                                                        <div class="input-group mb-3">
+                                                            <label for="expenseAmount"></label>
+                                                            <input type="text" name="expenseAmount" placeholder="Зарлага" class="form-control" id="expenseAmount">
+                                                            <input type="hidden" name="new_category" id="new_category"> <!-- Hidden input field for new_category -->
+                                                            <div class="input-group-append">
+                                                                <button class="btn btn-primary" type="submit">Батлах</button>
                                                             </div>
                                                         </div>
-                                                            <input type="hidden" id="selectedCategory" name="expenseCategory">
+                                                </form>
+                                                <script>
+                                                    // Add event listener to dropdown items to populate category input field
+                                                    document.querySelectorAll('.category-select').forEach(item => {
+                                                        item.addEventListener('click', event => {
+                                                            const selectedCategory = event.target.getAttribute('data-category');
+                                                            document.getElementById('new_category').value = selectedCategory; // Populate category input field
+                                                            document.getElementById('expense_category_button').innerHTML = selectedCategory; // Update dropdown button text
+                                                        });
+                                                    });
+                                                </script>
+                                                <form action="/update-incomes" method="POST">
+                                                    <div class="btn-group mb-2 mr-2 " id="income_category">
+                                                        <button id="income_category_button" class="btn btn-success dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                            Төрөл сонгох
+                                                        </button>
+                                                        <div class="dropdown-menu " >
+                                                                    {% for income_category in income_categories_label %}
+                                                                        <a class="dropdown-item income-category-select" href="#" data-category="{{ income_category['category'] }}">{{ income_category['category'] }}</a>
+                                                                    {% endfor %}
+                                                        </div>
+                                                    </div>
+                                                    <input type="hidden" id="selectedSource" name="expenseSource">
+                                                    <div class="input-group mb-3">
+                                                        <div class="input-group-append">
+                                                            <button class="btn btn-success" type="submit">Батлах</button>
+                                                        </div>
+                                                        <label for="incomeAmount"></label>
+                                                        <input type="text" name="incomeAmount" placeholder="Орлого" class="form-control" id="incomeAmount">
+                                                        <input type="hidden" name="new_source" id="new_source"> <!-- Hidden input field for new_category -->
+
+                                                    </div>
+                                                </form>
+
+                                                <script>
+                                                    // Add event listener to dropdown items to populate category input field
+                                                    document.querySelectorAll('.income-category-select').forEach(item => {
+                                                        item.addEventListener('click', event => {
+                                                            const selectedSource = event.target.getAttribute('data-category');
+                                                            document.getElementById('new_source').value = selectedSource; // Populate category input field
+                                                            document.getElementById('income_category_button').innerHTML = selectedSource; // Update dropdown button text
+                                                        });
+                                                    });
+                                                </script>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {# [Expense/Income input] end #}
+
+                                {# [Savings] start #}
+                                <div class="col-xl-6">
+                                    <div class="card">
+                                        <div class="card-header">
+                                            <h5>Хадгаламж</h5>
+                                        </div>
+                                        <div class="card-block">
+                                            <div class="col-md-6">
+                                                <form action="/update-savings" method="POST">
+                                                    <div class="btn-group mb-2 mr-2 float-right" id="saving_category">
+                                                        <button id="saving_category_button" class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                            Төрөл сонгох
+                                                        </button>
+                                                        <div class="dropdown-menu" >
+                                                                    {% for saving_category in saving_categories_label %}
+                                                                        <a class="dropdown-item goalName-select" href="#" data-goalName="{{ saving_category['category'] }}">{{ saving_category['category'] }}</a>
+                                                                    {% endfor %}
+                                                        </div>
+                                                    </div>
+                                                        <input type="hidden" id="selectedGoalName" name="goalName">
+
                                                             <div class="input-group mb-3">
-                                                                <label for="expenseAmount"></label>
-                                                                <input type="text" name="expenseAmount" placeholder="Зарлага" class="form-control" id="expenseAmount">
-                                                                <input type="hidden" name="new_category" id="new_category"> <!-- Hidden input field for new_category -->
+
+                                                                <label for="savingAmount"></label>
+                                                                <input type="text" name="savingAmount" placeholder="Хадгаламж" class="form-control" id="savingAmount" >
+                                                                <input type="hidden" name="new_goal" id="new_goal">
                                                                 <div class="input-group-append">
                                                                     <button class="btn btn-primary" type="submit">Батлах</button>
                                                                 </div>
                                                             </div>
-                                                    </form>
-                                                    <script>
-                                                        // Add event listener to dropdown items to populate category input field
-                                                        document.querySelectorAll('.category-select').forEach(item => {
-                                                            item.addEventListener('click', event => {
-                                                                const selectedCategory = event.target.getAttribute('data-category');
-                                                                document.getElementById('new_category').value = selectedCategory; // Populate category input field
-                                                                document.getElementById('expense_category_button').innerHTML = selectedCategory; // Update dropdown button text
-                                                            });
+
+                                                </form>
+                                                <script>
+                                                    // Add event listener to dropdown items to populate category input field
+                                                    document.querySelectorAll('.goalName-select').forEach(item => {
+                                                        item.addEventListener('click', event => {
+                                                            const selectedGoalName = event.target.getAttribute('data-goalName');
+                                                            document.getElementById('new_goal').value = selectedGoalName; // Populate category input field
+                                                            document.getElementById('saving_category_button').innerHTML = selectedGoalName; // Update dropdown button text
                                                         });
-                                                    </script>
+                                                    });
+                                                </script>
 
-                                                    <form action="/update-incomes" method="POST">
-                                                        <div class="btn-group mb-2 mr-2 " id="income_category">
-                                                            <button id="income_category_button" class="btn btn-success dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                                                Төрөл сонгох
-                                                            </button>
-                                                            <div class="dropdown-menu " >
-                                                                        {% for income_category in income_categories_label %}
-                                                                            <a class="dropdown-item income-category-select" href="#" data-category="{{ income_category['category'] }}">{{ income_category['category'] }}</a>
-                                                                        {% endfor %}
-                                                            </div>
+                                                <form action="/update-targetAmount" method="POST">
+                                                    <div class="btn-group mb-2 mr-2 " id="saving_category">
+                                                        <button id="saving_category_button_1" class="btn btn-success dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                            Төрөл сонгох
+                                                        </button>
+                                                        <div class="dropdown-menu" >
+                                                                    {% for saving_category in saving_categories_label %}
+                                                                        <a class="dropdown-item goalName_1-select" href="#" data-goalName_1="{{ saving_category['category'] }}">{{ saving_category['category'] }}</a>
+                                                                    {% endfor %}
                                                         </div>
-                                                        <input type="hidden" id="selectedSource" name="expenseSource">
-                                                        <div class="input-group mb-3">
-                                                            <div class="input-group-append">
-                                                                <button class="btn btn-success" type="submit">Батлах</button>
+                                                    </div>
+                                                            <input type="hidden" id="selectedGoalName" name="goalName">
+
+                                                            <div class="input-group mb-3">
+                                                                <div class="input-group-append">
+                                                                    <button class="btn btn-success" type="submit">Батлах</button>
+                                                                </div>
+                                                                <input type="hidden" name="new_goal_1" id="new_goal_1">
+                                                                <label for="targetAmount"></label>
+                                                                <input type="text" name="targetAmount" placeholder="Хадгаламжийн хэмжээ" class="form-control" id="targetAmount" >
+
                                                             </div>
-                                                            <label for="incomeAmount"></label>
-                                                            <input type="text" name="incomeAmount" placeholder="Орлого" class="form-control" id="incomeAmount">
-                                                            <input type="hidden" name="new_source" id="new_source"> <!-- Hidden input field for new_category -->
-
-                                                        </div>
-                                                    </form>
-
-                                                    <script>
-                                                        // Add event listener to dropdown items to populate category input field
-                                                        document.querySelectorAll('.income-category-select').forEach(item => {
-                                                            item.addEventListener('click', event => {
-                                                                const selectedSource = event.target.getAttribute('data-category');
-                                                                document.getElementById('new_source').value = selectedSource; // Populate category input field
-                                                                document.getElementById('income_category_button').innerHTML = selectedSource; // Update dropdown button text
-                                                            });
+                                                </form>
+                                                <script>
+                                                    // Add event listener to dropdown items to populate category input field
+                                                    document.querySelectorAll('.goalName_1-select').forEach(item => {
+                                                        item.addEventListener('click', event => {
+                                                            const selectedGoalName_1 = event.target.getAttribute('data-goalName_1');
+                                                            document.getElementById('new_goal_1').value = selectedGoalName_1; // Populate category input field
+                                                            document.getElementById('saving_category_button_1').innerHTML = selectedGoalName_1; // Update dropdown button text
                                                         });
-                                                    </script>
-
-
-                                                </div>
+                                                    });
+                                                </script>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
+                                {# [Savings] end #}
 
-
-                        <div class="col-xl-6">
-                            <div class="card">
-                                <div class="card-header">
-                                    <h5>Өдөр/Сарын хязгаар оруулах</h5>
-                                </div>
-                                <div class="card-block">
-                                    <div class="col-md-6">
-
+                                {# [Day/Month limit] start #}
+                                <div class="col-xl-6 mt-4">
+                                    <div class="card">
+                                        <div class="card-header">
+                                            <h5>Өдөр/Сарын хязгаар оруулах</h5>
+                                        </div>
+                                        <div class="card-block">
+                                            <div class="col-md-6">
                                                 <form action="/update-budget" method="POST">
                                                     <div class="input-group mb-3">
                                                         <label for="daily_limit"></label>
@@ -216,174 +311,91 @@
                                                         </div>
                                                     </div>
                                                </form>
-
-
                                                 <form action="/update-budget" method="POST">
                                                     <div class="input-group mb-3">
                                                         <div class="input-group-append">
-                                                            <button class="btn btn-warning" type="submit">Батлах</button>
+                                                            <button class="btn btn-success" type="submit">Батлах</button>
                                                         </div>
                                                         <label for="monthly_limit"></label>
                                                         <input type="text" name="monthly_limit" placeholder="Сарын хязгаар" class="form-control" id="monthly_limit" >
-
                                                     </div>
                                                </form>
-
-
-
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-
-
-
-
-                        <div class="col-xl-6">
-                            <div class="card">
-                                <div class="card-header">
-                                    <h5>Хадгаламж</h5>
-                                </div>
-                                <div class="card-block">
-                                    <div class="col-md-6">
-
-
-
-                                        <form action="/update-savings" method="POST">
-                                            <div class="btn-group mb-2 mr-2 float-right" id="saving_category">
-                                                <button id="saving_category_button" class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                                    Төрөл сонгох
-                                                </button>
-                                                <div class="dropdown-menu" >
-                                                            {% for saving_category in saving_categories_label %}
-                                                                <a class="dropdown-item goalName-select" href="#" data-goalName="{{ saving_category['category'] }}">{{ saving_category['category'] }}</a>
-                                                            {% endfor %}
-                                                </div>
                                             </div>
-                                                <input type="hidden" id="selectedGoalName" name="goalName">
-
-                                                    <div class="input-group mb-3">
-
-                                                        <label for="savingAmount"></label>
-                                                        <input type="text" name="savingAmount" placeholder="Хадгаламж" class="form-control" id="savingAmount" >
-                                                        <input type="hidden" name="new_goal" id="new_goal">
-                                                        <div class="input-group-append">
-                                                            <button class="btn btn-warning" type="submit">Батлах</button>
-                                                        </div>
-                                                    </div>
-
-                                        </form>
-                                        <script>
-                                            // Add event listener to dropdown items to populate category input field
-                                            document.querySelectorAll('.goalName-select').forEach(item => {
-                                                item.addEventListener('click', event => {
-                                                    const selectedGoalName = event.target.getAttribute('data-goalName');
-                                                    document.getElementById('new_goal').value = selectedGoalName; // Populate category input field
-                                                    document.getElementById('saving_category_button').innerHTML = selectedGoalName; // Update dropdown button text
-                                                });
-                                            });
-                                        </script>
-
-
-
-
-
-                                        <form action="/update-targetAmount" method="POST">
-                                            <div class="btn-group mb-2 mr-2 float-right" id="saving_category">
-                                                <button id="saving_category_button_1" class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                                    Төрөл сонгох
-                                                </button>
-                                                <div class="dropdown-menu" >
-                                                            {% for saving_category in saving_categories_label %}
-                                                                <a class="dropdown-item goalName_1-select" href="#" data-goalName_1="{{ saving_category['category'] }}">{{ saving_category['category'] }}</a>
-                                                            {% endfor %}
-                                                </div>
-                                            </div>
-                                                    <input type="hidden" id="selectedGoalName" name="goalName">
-
-                                                    <div class="input-group mb-3">
-                                                        <div class="input-group-append">
-                                                            <button class="btn btn-warning" type="submit">Батлах</button>
-                                                        </div>
-                                                        <input type="hidden" name="new_goal_1" id="new_goal_1">
-                                                        <label for="targetAmount"></label>
-                                                        <input type="text" name="targetAmount" placeholder="Хадгаламжийн хэмжээ" class="form-control" id="targetAmount" >
-
-                                                    </div>
-                                        </form>
-                                        <script>
-                                            // Add event listener to dropdown items to populate category input field
-                                            document.querySelectorAll('.goalName_1-select').forEach(item => {
-                                                item.addEventListener('click', event => {
-                                                    const selectedGoalName_1 = event.target.getAttribute('data-goalName_1');
-                                                    document.getElementById('new_goal_1').value = selectedGoalName_1; // Populate category input field
-                                                    document.getElementById('saving_category_button_1').innerHTML = selectedGoalName_1; // Update dropdown button text
-                                                });
-                                            });
-                                        </script>
-
-
-
-
-
-
-
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-
-
-                                <div class="col-xl-4 col-md-6">
-                                    <div class="card card-event">
                                         </div>
-                                        <div class="card">
-                                            <div class="btn-group-sm  mt-4 mx-3 " id="time_period">
-                                                <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Хугацаа</button>
-                                                    <div class="dropdown-menu">
-                                                        {% for period in periods %}
-                                                        <a class="dropdown-item" href="{{ url_for('home_blueprint.index', time_period=period['value']) }}">{{ period['label'] }} </a>
-                                                        {% endfor %}
-                                                    </div>
-                                            </div>
-                                            <div class="card-block border-bottom">
-                                                <div class="row d-flex align-items-center">
-                                                    <div class="col-auto">
-                                                        <i class="feather icon-zap f-30 text-c-green"></i>
-                                                    </div>
-                                                    <div class="col">
-                                                        <h3 class="f-w-300">{{ expense_count }}</h3>
-                                                        <span class="d-block text-uppercase">ЗАРЛАГА ХИЙСЭН ТОО</span>
-                                                    </div>
+                                    </div>
+                                </div>
+                                {# [Day/Month limit] end #}
+
+                                {# [Expense/Income count] start #}
+                                <div class="col-xl-4 col-md-6">
+                                    <div class="card card-event"></div>
+                                    <div class="card">
+                                        <div class="btn-group-sm  mt-4 mx-3 " id="time_period">
+                                            <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Хугацаа</button>
+                                                <div class="dropdown-menu">
+                                                    {% for period in periods %}
+                                                    <a class="dropdown-item" href="{{ url_for('home_blueprint.index', time_period=period['value']) }}">{{ period['label'] }} </a>
+                                                    {% endfor %}
+                                                </div>
+                                        </div>
+                                        <div class="card-block border-bottom">
+                                            <div class="row d-flex align-items-center">
+                                                <div class="col-auto">
+                                                    <i class="feather icon-zap f-30 text-c-green"></i>
+                                                </div>
+                                                <div class="col">
+                                                    <h3 class="f-w-300">{{ expense_count }}</h3>
+                                                    <span class="d-block text-uppercase">ЗАРЛАГА ХИЙСЭН ТОО</span>
                                                 </div>
                                             </div>
-                                            <div class="card-block">
-                                                <div class="row d-flex align-items-center ">
-                                                    <div class="col-auto">
-                                                        <i class="feather icon-map-pin f-30 text-c-blue"></i>
-                                                    </div>
-                                                    <div class="col">
-                                                        <h3 class="f-w-300">{{ income_count }}</h3>
-                                                        <span class="d-block text-uppercase">ОРЛОГО ХИЙСЭН ТОО</span>
-                                                    </div>
+                                        </div>
+                                        <div class="card-block">
+                                            <div class="row d-flex align-items-center ">
+                                                <div class="col-auto">
+                                                    <i class="feather icon-map-pin f-30 text-c-blue"></i>
+                                                </div>
+                                                <div class="col">
+                                                    <h3 class="f-w-300">{{ income_count }}</h3>
+                                                    <span class="d-block text-uppercase">ОРЛОГО ХИЙСЭН ТОО</span>
                                                 </div>
                                             </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {# [Expense/Income count] end #}
 
 
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h5>To Do Card List</h5>
+                                    </div>
+                                    <div class="card-body py-3 border-bottom">
+                                        <div class="input-group">
+                                            <input type="text" name="task-insert" class="form-control" placeholder="Create your task list" required>
+                                            <button class="btn btn-secondary btn-icon" id="create-task">
+                                                <i class="fa fa-plus"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="card-body">
+                                        <section id="task-container">
+                                            <ul id="task-list">
+                                                <!-- Tasks will be dynamically added here -->
+                                            </ul>
+                                            <div class="text-center">
+                                                <button id="clear-all-tasks" class="btn btn-primary m-b-0" type="button">Clear All Tasks</button>
+                                            </div>
+                                        </section>
                                     </div>
                                 </div>
 
 
 
                             </div>
-                            <!-- [ Main Content ] end -->
                         </div>
                     </div>
                 </div>
             </div>
-
         </div>
     </div>
     <!-- [ Main Content ] end -->            
@@ -392,6 +404,7 @@
 
 <!-- Specific Page JS goes HERE  -->
 {% block javascripts %}
+    <script src="{{ config.ASSETS_ROOT }}/pages/todo.js"></script>
     <script src="{{ config.ASSETS_ROOT }}/plugins/chart-morris/js/raphael.min.js"></script>
     <script src="{{ config.ASSETS_ROOT }}/plugins/chart-morris/js/morris.min.js"></script>
     <script src="{{ config.ASSETS_ROOT }}/js/pages/chart-morris-custom.js"></script>

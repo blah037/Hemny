@@ -19,28 +19,6 @@ from sqlalchemy import not_
 from flask_wtf import FlaskForm
 
 
-@blueprint.route('/get-goal-amounts', methods=['GET'])
-def get_goal_amounts():
-    # Get the selected goalName from the query parameters
-    selected_goal_name = request.args.get('goalName')
-
-    # Query the database to retrieve the targetAmount and savingAmount for the selected goalName
-    goal_data = Saving.query.filter_by(goalName=selected_goal_name).first()
-
-    # Check if the goal data exists
-    if goal_data:
-        # Construct a dictionary with the retrieved data
-        goal_amounts = {
-            'targetAmount': goal_data.targetAmount,
-            'savingAmount': goal_data.savingAmount
-        }
-        # Return the data as a JSON response
-        return jsonify(goal_amounts)
-    else:
-        # If the goal data doesn't exist, return an error message
-        return jsonify({'error': 'Goal data not found for selected goalName'}), 404
-
-
 @blueprint.route('/update-targetAmount', methods=['POST'])
 @login_required
 def update_targetAmount():
@@ -54,7 +32,8 @@ def update_targetAmount():
 
             # If the goal exists, update its target amount
             if existing_goal:
-                existing_goal.targetAmount += int(saving_target)
+                existing_goal.targetAmount = saving_target
+                db.session.commit()
             # If the goal doesn't exist, create a new one
             else:
                 saving_target_update = Saving(UserID=current_user.id, targetAmount=saving_target, goalName=new_goal_1,
@@ -232,7 +211,7 @@ def total_income_last_n_days(n_days):
 
     # Format the total expense amount for the last n days
     formatted_total_income = locale.format_string("%d", total_income, grouping=True)
-    formatted_total_income = formatted_total_income.replace(',', "'")
+    formatted_total_income = formatted_total_income
 
     return formatted_total_income
 
@@ -252,7 +231,7 @@ def total_saving_last_n_days(n_days):
 
     # Format the total expense amount for the last n days
     formatted_total_saving = locale.format_string("%d", total_saving, grouping=True)
-    formatted_total_saving = formatted_total_saving.replace(',', "'")
+    formatted_total_saving = formatted_total_saving
 
     return formatted_total_saving
 
@@ -372,6 +351,28 @@ def index():
     else:
         pass
 
+    goal_name = request.args.get('selectedGoalName')
+
+    # Query the database for the targetAmount and savingAmount with the specified goalName
+    goal_data = Saving.query.filter_by(goalName=goal_name).first()
+
+    # Check if the goal data exists
+    if goal_data:
+        # Extract targetAmount and savingAmount from the goal_data object
+        target_amount = goal_data.targetAmount
+        saving_amount = goal_data.savingAmount
+    else:
+        target_amount = None
+        saving_amount = 0
+
+    # Check if both target_amount and saving_amount are not None
+    if target_amount is not None and saving_amount is not None:
+        # Calculate the percentage completion
+        completion_percentage = (saving_amount / target_amount) * 100
+    else:
+        # Handle the case where either target_amount or saving_amount is None
+        completion_percentage = 0
+
     # Check if monthly_limit_row is not None before accessing its value
 
     # Calculate monthly progress only if monthly_limit is not 0 to avoid division by zero error
@@ -400,7 +401,10 @@ def index():
                            monthly_limit=monthly_limit,
                            expense_progress=expense_progress,
                            total_expense=total_expense,
-                           total_income=total_income
+                           total_income=total_income,
+                           target_amount=target_amount,
+                           saving_amount=saving_amount,
+                           completion_percentage=completion_percentage
                            )
 
 
@@ -414,11 +418,40 @@ def route_template(template):
         # Detect the current page
         segment = get_segment(request)
         user_data = Users.query.all()
+        expenses = db.session.query(
+            func.date(Expense.dateSpent).label('expense_date'),
+            func.sum(Expense.expenseAmount).label('total_expense'),
+            Expense.category.label('expense_category')  # Include the category column
+        ).group_by(
+            func.date(Expense.dateSpent),
+            Expense.category  # Group by category as well
+        ).all()  # Fetch all expenses from the database
+
+        expense_chart_data = [{'x': expense.expense_date.strftime("%Y-%m-%d"), 'y': float(expense.total_expense), 'category': expense.expense_category} for
+                              expense in
+                              expenses]
+
+        incomes = db.session.query(
+            func.date(Income.dateReceived).label('income_date'),
+            func.sum(Income.incomeAmount).label('total_income'),
+            Income.source.label('income_category')
+        ).group_by(
+            func.date(Income.dateReceived),
+            Income.source
+        ).all()  # Fetch all expenses from the database
+
+        income_chart_data = [{'x': income.income_date.strftime("%Y-%m-%d"), 'y': float(income.total_income), 'source': income.income_category} for income
+                             in
+                             incomes]
+
         # Serve the file (if exists) from app/templates/home/FILE.html
         if template == 'tbl_bootstrap.html':
             # Render the profile template with the current user's information
             return render_template("home/tbl_bootstrap.html", segment=segment, current_user=current_user
                                    , user_data=user_data)
+        elif template == 'chart-morris.html':
+            return render_template('home/chart-morris.html', expense_chart_data=expense_chart_data,
+                                   income_chart_data=income_chart_data)
         else:
             return render_template("home/" + template, segment=segment)
 
