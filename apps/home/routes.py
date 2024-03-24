@@ -210,8 +210,7 @@ def total_income_last_n_days(n_days):
     total_income = total_income or 0
 
     # Format the total expense amount for the last n days
-    formatted_total_income = locale.format_string("%d", total_income, grouping=True)
-    formatted_total_income = formatted_total_income
+    formatted_total_income = total_income
 
     return formatted_total_income
 
@@ -348,6 +347,7 @@ def index():
     if total_income_last_n_days != 0:
         time_period = int(time_period)
         total_income = total_income_last_n_days(time_period)
+
     else:
         pass
 
@@ -427,22 +427,24 @@ def route_template(template):
             Expense.category  # Group by category as well
         ).all()  # Fetch all expenses from the database
 
-        expense_chart_data = [{'x': expense.expense_date, 'y': float(expense.total_expense), 'category': expense.expense_category} for
-                              expense in
-                              expenses]
+        expense_chart_data = [
+            {'x': expense.expense_date, 'y': float(expense.total_expense), 'category': expense.expense_category} for
+            expense in
+            expenses]
 
         incomes = db.session.query(
             func.date(Income.dateReceived).label('income_date'),
             func.sum(Income.incomeAmount).label('total_income'),
-            Income.source.label('income_category')                                   # .strftime("%Y-%m-%d")
+            Income.source.label('income_category')  # .strftime("%Y-%m-%d")
         ).group_by(
             func.date(Income.dateReceived),
             Income.source
         ).all()  # Fetch all expenses from the database
 
-        income_chart_data = [{'x': income.income_date, 'y': float(income.total_income), 'source': income.income_category} for income
-                             in
-                             incomes]
+        income_chart_data = [
+            {'x': income.income_date, 'y': float(income.total_income), 'source': income.income_category} for income
+            in
+            incomes]
 
         # Serve the file (if exists) from app/templates/home/FILE.html
         if template == 'tbl_bootstrap.html':
