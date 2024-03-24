@@ -22,7 +22,7 @@
                                 <div class="col-xl-6 mb-3">
                                     <div class="card">
                                         <div class="card-header">
-                                            <h5>Line [ Smooth ] Chart</h5>
+                                            <h5>Зарлага</h5>
                                         </div>
                                         <div class="card-block">
                                             <div id="morris-line-smooth-chart-expense" class="ChartShadow" style="height:300px"></div>
@@ -33,7 +33,7 @@
                                 <div class="col-xl-6 mb-3">
                                     <div class="card">
                                         <div class="card-header">
-                                            <h5>Line [ Smooth ] Chart</h5>
+                                            <h5>Орлого</h5>
                                         </div>
                                         <div class="card-block">
                                             <div id="morris-line-smooth-chart-income" class="ChartShadow" style="height:300px"></div>
@@ -41,29 +41,29 @@
                                     </div>
                                 </div>
 
-                                <div class="col-xl-6">
-                                    <div class="card">
-                                        <div class="card-header">
-                                                <h5>Donut Chart</h5>
-                                        </div>
-                                        <div class="card-block">
-                                            <div id="morris-donut-chart" style="height:300px"></div>
-                                        </div>
-                                    </div>
-                                </div>
+{#                                <div class="col-xl-6">#}
+{#                                    <div class="card">#}
+{#                                        <div class="card-header">#}
+{#                                                <h5>Donut Chart</h5>#}
+{#                                        </div>#}
+{#                                        <div class="card-block">#}
+{#                                            <div id="morris-donut-chart" style="height:300px"></div>#}
+{#                                        </div>#}
+{#                                    </div>#}
+{#                                </div>#}
 
                                 <script>
                                     document.addEventListener("DOMContentLoaded", function () {
                                         // Chart initialization code here
                                         // Example:
-                                        Morris.Donut({
-                                            element: 'morris-donut-chart',
-                                            data: [
-                                                {label: "Label 1", value: 25},
-                                                {label: "Label 2", value: 50},
-                                                {label: "Label 3", value: 25}
-                                            ]
-                                        });
+                                        {#Morris.Donut({#}
+                                        {#    element: 'morris-donut-chart',#}
+                                        {#    data: [#}
+                                        {#        {label: "Label 1", value: 25},#}
+                                        {#        {label: "Label 2", value: 50},#}
+                                        {#        {label: "Label 3", value: 25}#}
+                                        {#    ]#}
+                                        {# });#}
 
                                         Morris.Line({
                                             element: 'morris-line-smooth-chart-income',

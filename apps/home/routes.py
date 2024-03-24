@@ -427,20 +427,20 @@ def route_template(template):
             Expense.category  # Group by category as well
         ).all()  # Fetch all expenses from the database
 
-        expense_chart_data = [{'x': expense.expense_date.strftime("%Y-%m-%d"), 'y': float(expense.total_expense), 'category': expense.expense_category} for
+        expense_chart_data = [{'x': expense.expense_date, 'y': float(expense.total_expense), 'category': expense.expense_category} for
                               expense in
                               expenses]
 
         incomes = db.session.query(
             func.date(Income.dateReceived).label('income_date'),
             func.sum(Income.incomeAmount).label('total_income'),
-            Income.source.label('income_category')
+            Income.source.label('income_category')                                   # .strftime("%Y-%m-%d")
         ).group_by(
             func.date(Income.dateReceived),
             Income.source
         ).all()  # Fetch all expenses from the database
 
-        income_chart_data = [{'x': income.income_date.strftime("%Y-%m-%d"), 'y': float(income.total_income), 'source': income.income_category} for income
+        income_chart_data = [{'x': income.income_date, 'y': float(income.total_income), 'source': income.income_category} for income
                              in
                              incomes]
 
