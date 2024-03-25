@@ -28,7 +28,7 @@ def update_targetAmount():
         new_goal_1 = request.form.get('new_goal_1')
 
         try:
-            existing_goal = Saving.query.filter_by(goalName=new_goal_1).first()
+            existing_goal = Saving.query.filter_by(goalName=new_goal_1, UserID=current_user.id).first()
 
             # If the goal exists, update its target amount
             if existing_goal:
@@ -65,7 +65,7 @@ def update_savings():
 
         # Create new expensesaving
         try:
-            existing_goal = Saving.query.filter_by(goalName=new_goal).first()
+            existing_goal = Saving.query.filter_by(goalName=new_goal, UserID=current_user.id).first()
 
             # If the goal exists, update its target amount
             if existing_goal:
@@ -229,8 +229,7 @@ def total_saving_last_n_days(n_days):
     total_saving = total_saving or 0
 
     # Format the total expense amount for the last n days
-    formatted_total_saving = locale.format_string("%d", total_saving, grouping=True)
-    formatted_total_saving = formatted_total_saving
+    formatted_total_saving = total_saving
 
     return formatted_total_saving
 
@@ -351,10 +350,16 @@ def index():
     else:
         pass
 
+
+
+    # Get the current user's ID
+    current_user_id = current_user.id
+
+    # Goal name obtained from the request
     goal_name = request.args.get('selectedGoalName')
 
-    # Query the database for the targetAmount and savingAmount with the specified goalName
-    goal_data = Saving.query.filter_by(goalName=goal_name).first()
+    # Query the database for the targetAmount and savingAmount with the specified goalName and current user's ID
+    goal_data = Saving.query.filter_by(goalName=goal_name, UserID=current_user_id).first()
 
     # Check if the goal data exists
     if goal_data:
@@ -372,6 +377,12 @@ def index():
     else:
         # Handle the case where either target_amount or saving_amount is None
         completion_percentage = 0
+
+    # Format the saving amount for display
+    if saving_amount is not None:
+        formatted_saving_amount = '{:,.0f}'.format(saving_amount) + '₮'
+    else:
+        formatted_saving_amount = '0₮'
 
     # Check if monthly_limit_row is not None before accessing its value
 
@@ -404,7 +415,8 @@ def index():
                            total_income=total_income,
                            target_amount=target_amount,
                            saving_amount=saving_amount,
-                           completion_percentage=completion_percentage
+                           completion_percentage=completion_percentage,
+                           formatted_saving_amount=formatted_saving_amount
                            )
 
 
@@ -417,11 +429,13 @@ def route_template(template):
 
         # Detect the current page
         segment = get_segment(request)
-        user_data = Users.query.all()
+        user_data = Users.query.filter_by(id=current_user.id).all()
         expenses = db.session.query(
             func.date(Expense.dateSpent).label('expense_date'),
             func.sum(Expense.expenseAmount).label('total_expense'),
             Expense.category.label('expense_category')  # Include the category column
+        ).filter(
+            Expense.UserID == current_user.id
         ).group_by(
             func.date(Expense.dateSpent),
             Expense.category  # Group by category as well
@@ -436,6 +450,8 @@ def route_template(template):
             func.date(Income.dateReceived).label('income_date'),
             func.sum(Income.incomeAmount).label('total_income'),
             Income.source.label('income_category')  # .strftime("%Y-%m-%d")
+        ).filter(
+            Income.UserID == current_user.id
         ).group_by(
             func.date(Income.dateReceived),
             Income.source
