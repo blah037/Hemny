@@ -47,6 +47,7 @@ class Users(db.Model, UserMixin):
     def __repr__(self):
         return f"User('{self.username}','{self.email}')"
 
+
 class Budget(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     UserID = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
@@ -85,6 +86,7 @@ class Expense(db.Model):
     def __repr__(self):
         return f"Expense(ID: {self.id}, Category: {self.category}," \
                f" Amount: {self.expenseAmount}, DateSpent: {self.dateSpent})"
+
 
 class Saving(db.Model):
     id = db.Column(db.Integer, primary_key=True)

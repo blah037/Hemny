@@ -11,6 +11,7 @@ from flask_sqlalchemy import SQLAlchemy
 from importlib import import_module
 
 
+
 db = SQLAlchemy()
 login_manager = LoginManager()
 

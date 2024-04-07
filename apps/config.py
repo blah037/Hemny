@@ -29,8 +29,6 @@ class Config(object):
 
     import os
 
-    import os
-
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
     DB_ENGINE = os.getenv('DB_ENGINE', None)  # 'mysql'

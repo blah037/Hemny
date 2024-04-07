@@ -2,14 +2,9 @@
 """
 Copyright (c) 2019 - present AppSeed.us
 """
-from flask import request
 from flask_wtf import FlaskForm
-from flask_login import current_user
-from wtforms import StringField, PasswordField, BooleanField, SubmitField, ValidationError, DecimalField
-from wtforms.validators import Email, DataRequired, Length, EqualTo, InputRequired
-
-from apps import db
-from apps.authentication.models import Users
+from wtforms import StringField, PasswordField, BooleanField, SubmitField, DecimalField
+from wtforms.validators import Email, DataRequired
 
 
 # login and registration

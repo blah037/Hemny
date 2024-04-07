@@ -3,16 +3,17 @@
 Copyright (c) 2019 - present AppSeed.us
 """
 
-from flask import render_template, redirect, request, url_for, flash
+from flask import render_template, redirect, request, url_for
+from flask_dance.contrib.github import github
 from flask_login import (
     current_user,
     login_user,
-    logout_user, login_required
+    logout_user
 )
-from flask_dance.contrib.github import github
+
 from apps import db, login_manager
 from apps.authentication import blueprint
-from apps.authentication.forms import LoginForm, CreateAccountForm, LoginForm
+from apps.authentication.forms import CreateAccountForm, LoginForm
 from apps.authentication.models import Users
 from apps.authentication.util import verify_pass
 

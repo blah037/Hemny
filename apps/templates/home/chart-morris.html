@@ -3,7 +3,13 @@
 {% block title %} Граф {% endblock %}
 
 <!-- Specific CSS goes HERE -->
-{% block stylesheets %}{% endblock stylesheets %}
+{% block stylesheets %}
+
+<link href="https://unpkg.com/bootstrap-datepicker@1.9.0/dist/css/bootstrap-datepicker3.min.css" rel="stylesheet">
+<link href="{{ config.ASSETS_ROOT }}/css/datepicker.css" rel="stylesheet">
+    <link href="{{ config.ASSETS_ROOT }}/css/bootstrap-datepicker.min.css" rel="stylesheet">
+{% endblock stylesheets %}
+
 
 {% block content %}
 
@@ -19,8 +25,32 @@
                             <!-- [ Main Content ] start -->
                             <div class="row">
 
-                                <div class="col-xl-6 mb-3">
-                                    <div class="card">
+                                <div class="container">
+                                  <div class="dropdown mb-4">
+                                    <button class="btn btn-primary dropdown-toggle" type="button" id="dateRangeDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                      Select your booking dates
+                                    </button>
+                                    <div class="dropdown-menu p-4" aria-labelledby="dateRangeDropdown">
+                                      <div class="well">
+                                        <h5>Select your booking dates:</h5>
+                                        <div class="date-range">
+                                          <div class="checkin-picker"></div>
+                                          <div class="checkout-picker"></div>
+                                        </div>
+                                        <p>
+                                          <a class="btn btn-success" href="#" role="button">
+                                            Search availabilities from <span id="display-checkin"></span>
+                                            to <span id="display-checkout"></span>
+                                          </a>
+                                        </p>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+
+
+                                <div class="col-xl-6 mb-5">
+                                    <div class="card ">
                                         <div class="card-header">
                                             <h5>Зарлага</h5>
                                         </div>
@@ -30,7 +60,7 @@
                                     </div>
                                 </div>
 
-                                <div class="col-xl-6 mb-3">
+                                <div class="col-xl-6 mb-5">
                                     <div class="card">
                                         <div class="card-header">
                                             <h5>Орлого</h5>
@@ -51,6 +81,65 @@
 {#                                        </div>#}
 {#                                    </div>#}
 {#                                </div>#}
+
+
+                                   <script>
+                                      $(document).ready(function() {
+    // Initialize datepickers
+    $('.checkin-picker').datepicker({
+      autoclose: true,
+      format: 'mm-dd-yyyy'
+    });
+    $('.checkout-picker').datepicker({
+      autoclose: true,
+      format: 'mm-dd-yyyy'
+    });
+
+    // Define Morris.js chart data
+    var chartData = {{ expense_chart_data | safe }};
+
+    // Function to filter data based on selected date range
+    function filterData(startDate, endDate) {
+      var filteredData = [];
+      for (var i = 0; i < chartData.length; i++) {
+        var date = new Date(chartData[i].x);
+        if (date >= startDate && date <= endDate) {
+          filteredData.push(chartData[i]);
+        }
+      }
+      return filteredData;
+    }
+
+    // Event listener for date range selection
+    $('#dateRangeDropdown').on('click', function() {
+      var startDate = $('.checkin-picker').datepicker('getDate');
+      var endDate = $('.checkout-picker').datepicker('getDate');
+      var filteredData = filterData(startDate, endDate);
+      updateChart(filteredData);
+    });
+
+    // Function to update Morris.js chart with filtered data
+    function updateChart(filteredData) {
+      Morris.Line({
+        element: 'morris-line-smooth-chart-expense',
+        data: filteredData,
+        xkey: 'x',
+        ykeys: ['y'],
+        labels: ['Expense amount'],
+        hoverCallback: function(index, options, content, row) {
+          return "<div class='morris-hover-point'>" +
+            "<div class='morris-hover-row-label'>Date: " + row.x + "</div>" +
+            "<div class='morris-hover-row-label'>Expense: " + row.y + "</div>";
+        },
+        xLabelFormat: function(x) { return ''; },
+      });
+    }
+
+    // Initialize Morris.js chart with default data
+    updateChart(chartData);
+  });
+                                </script>
+
 
                                 <script>
                                     document.addEventListener("DOMContentLoaded", function () {
@@ -102,6 +191,13 @@
                                     });
 
                                 </script>
+
+
+
+
+
+
+
                             </div>
                             <!-- [ Main Content ] end -->
                         </div>
@@ -118,9 +214,13 @@
 <!-- Specific Page JS goes HERE  -->
 {% block javascripts %}
 
-    <!-- chart-morris Js -->
-    <script src="{{ config.ASSETS_ROOT }}/plugins/chart-morris/js/raphael.min.js"></script>
+
+<script src="{{ config.ASSETS_ROOT }}/plugins/chart-morris/js/raphael.min.js"></script>
     <script src="{{ config.ASSETS_ROOT }}/plugins/chart-morris/js/morris.min.js"></script>
+    <script src="{{ config.ASSETS_ROOT }}/js/bootstrap-datepicker.min.js "></script>
+    <script src="https://unpkg.com/bootstrap-datepicker@1.9.0/dist/js/bootstrap-datepicker.min.js"></script>
+    <script src="{{ config.ASSETS_ROOT }}/js/pages/chart-morris-custom.js"></script>
+
 
 
 {% endblock javascripts %}

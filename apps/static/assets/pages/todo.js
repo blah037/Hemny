@@ -5,7 +5,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     document.querySelector('button#create-task').addEventListener('click', function () {
         var task = document.querySelector('input[name=task-insert]').value;
-        if (task.length == 0) {
+        if (task.length === 0) {
             alert('Please enter a task');
         } else {
             var newTask = '<li>' + '<p>' + task + '</p>' + '</li>'
@@ -22,7 +22,7 @@ document.addEventListener("DOMContentLoaded", function () {
             pclinkclick[i].addEventListener("click", function (event) {
                 event.stopPropagation();
                 var targetElement = event.target;
-                if (targetElement.tagName == "P") {
+                if (targetElement.tagName === "P") {
                     targetElement = targetElement.parentNode;
                 }
                 targetElement.classList.toggle('complete');
@@ -42,7 +42,7 @@ document.addEventListener("DOMContentLoaded", function () {
     checkstate();
     document.querySelector("#add-btn").addEventListener("click", function () {
         var task = document.querySelector('.add_task_todo').value;
-        if (task == "") {
+        if (task === "") {
             alert("please enter task");
         } else {
             i++;
@@ -69,7 +69,7 @@ function checkstate() {
         pclinkclick[i].addEventListener("click", function (event) {
             event.stopPropagation();
             var targetElement = event.target;
-            if (targetElement.tagName == "I") {
+            if (targetElement.tagName === "I") {
                 targetElement = targetElement.parentNode;
             }
             targetElement.parentNode.parentNode.remove();
@@ -93,7 +93,7 @@ var k = 4;
 
 document.querySelector('button.btn_save').addEventListener('click', function () {
     var task = document.querySelector('input[name=task-insert-modal]').value;
-    if (task.length == 0) {
+    if (task.length === 0) {
         alert('please enter a task');
     } else {
         k++;

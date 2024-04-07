@@ -3,9 +3,10 @@
 Copyright (c) 2019 - present AppSeed.us
 """
 
-import os
-import hashlib
 import binascii
+import hashlib
+import os
+
 
 # Inspiration -> https://www.vitoshacademy.com/hashing-passwords-in-python/
 

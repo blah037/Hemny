@@ -1,0 +1,154 @@
+{% extends "layouts/base.html" %}
+
+{% block title %} Page Blank {% endblock %} 
+
+<!-- Specific CSS goes HERE -->
+{% block stylesheets %}{% endblock stylesheets %}
+
+{% block content %}
+
+    <!-- [ Main Content ] start -->
+    <div class="pcoded-main-container">
+        <div class="pcoded-wrapper">
+            <div class="pcoded-content">
+                <div class="pcoded-inner-content">
+                    <!-- [ breadcrumb ] start -->
+                    <div class="page-header">
+                        <div class="page-block">
+                            <div class="row align-items-center">
+                                <div class="col-md-12">
+                                    <div class="page-header-title">
+                                        <h5 class="m-b-10"></h5>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- [ breadcrumb ] end -->
+                    <div class="main-body">
+                        <div class="page-wrapper">
+                            <!-- [ Main Content ] start -->
+                            <div class="row">
+                                <div class="col-12">
+                                    <div class="card">
+                                        <div class="card-header">
+                                            <h5>Ханш хөрвүүлэгч</h5>
+                                        </div>
+                                        <div class="card-block">
+                                            <p>
+                                                <form action="/currency_converter" method="POST">
+                                                    <div class="form-group">
+                                                        <label for="first_currency">Хөрвүүлэгдэх ханш</label>
+                                                        <input type="text" class="form-control" id="first_currency" name="first_currency" placeholder="Ханшний код оруулнуу (MNT г.м)" required>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label for="second_currency">Хөрвүүлэх ханш</label>
+                                                        <input type="text" class="form-control" id="second_currency" name="second_currency" placeholder="Ханшний код оруулнуу (USD г.м)" required>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label for="amount">Хэмжээ</label>
+                                                        <input type="number" step="0.01" class="form-control" id="amount" name="amount" placeholder="Хэмжээ оруулах" required>
+                                                    </div>
+                                                    <button type="submit" class="btn btn-primary">Хөрвүүлэх</button>
+                                                </form>
+                                                {% if info %}
+                                                <div class="mt-4">
+                                                    <h4>Үр дүн:</h4>
+                                                    <h3>{{ "{:,.2f}".format(info.amount) }} {{ info.first_currency }} = {{ "{:,.2f}".format(info.result) }} {{ info.second_currency }}</h3>
+                                                    <h5>Ханшийн үзүүлэлт: 1 {{ info.first_currency }} = {{ info.conversion_rate }} {{ info.second_currency }}</h5>
+                                                </div>
+                                                {% endif %}
+                                                {% if error %}
+                                                <div class="alert alert-danger mt-4" role="alert">
+                                                    {{ error }}
+                                                </div>
+                                                {% endif %}
+                                                {# [Currency converter] start #}
+{#                                                    <div class="row">#}
+{#                                                        <div class="col-md-3">#}
+{#                                                            <form action="/update-incomes" method="POST">#}
+{#                                                                <div class="btn-group mb-2 mr-2 " id="income_category">#}
+{#                                                                    <button id="income_category_button" class="btn btn-success dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">#}
+{#                                                                        Төрөл сонгох#}
+{#                                                                    </button>#}
+{#                                                                    <div class="dropdown-menu " >#}
+{#                                                                                {% for income_category in income_categories_label %}#}
+{#                                                                                    <a class="dropdown-item income-category-select" href="#" data-category="{{ income_category['category'] }}">{{ income_category['category'] }}</a>#}
+{#                                                                                {% endfor %}#}
+{#                                                                    </div>#}
+{#                                                                </div>#}
+{#                                                                <input type="hidden" id="selectedSource" name="expenseSource">#}
+{#                                                                <div class="input-group mb-3">#}
+{#                                                                    <div class="input-group-append">#}
+{#                                                                        <button class="btn btn-success" type="submit">Батлах</button>#}
+{#                                                                    </div>#}
+{#                                                                    <label for="incomeAmount"></label>#}
+{#                                                                    <input type="text" name="incomeAmount" placeholder="Орлого" class="form-control" id="incomeAmount">#}
+{#                                                                    <input type="hidden" name="new_source" id="new_source"> <!-- Hidden input field for new_category -->#}
+{##}
+{#                                                                </div>#}
+{#                                                            </form>#}
+{#                                                        </div>#}
+{#                                                            <script>#}
+{#                                                                // Add event listener to dropdown items to populate category input field#}
+{#                                                                document.querySelectorAll('.income-category-select').forEach(item => {#}
+{#                                                                    item.addEventListener('click', event => {#}
+{#                                                                        const selectedSource = event.target.getAttribute('data-category');#}
+{#                                                                        document.getElementById('new_source').value = selectedSource; // Populate category input field#}
+{#                                                                        document.getElementById('income_category_button').innerHTML = selectedSource; // Update dropdown button text#}
+{#                                                                    });#}
+{#                                                                });#}
+{#                                                            </script>#}
+{#                                                            <div class="col-md-3">#}
+{#                                                                <form action="/update-expenses" method="POST">#}
+{#                                                                    <div class="btn-group mb-2 mr-2 float-right" id="expense_category">#}
+{#                                                                        <button id="expense_category_button" class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">#}
+{#                                                                            Төрөл сонгох#}
+{#                                                                        </button>#}
+{#                                                                        <div class="dropdown-menu" >#}
+{#                                                                                    {% for expense_category in expense_categories_label %}#}
+{#                                                                                        <a class="dropdown-item category-select" href="#" data-category="{{ expense_category['category'] }}">{{ expense_category['category'] }}</a>#}
+{#                                                                                    {% endfor %}#}
+{#                                                                        </div>#}
+{#                                                                    </div>#}
+{#                                                                        <input type="hidden" id="selectedCategory" name="expenseCategory">#}
+{#                                                                        <div class="input-group mb-3 ">#}
+{#                                                                            <label for="expenseAmount"></label>#}
+{#                                                                            <input type="text" name="expenseAmount" placeholder="Зарлага" class="form-control" id="expenseAmount">#}
+{#                                                                            <input type="hidden" name="new_category" id="new_category"> <!-- Hidden input field for new_category -->#}
+{#                                                                            <div class="input-group-append">#}
+{#                                                                                <button class="btn btn-primary" type="submit">Батлах</button>#}
+{#                                                                            </div>#}
+{#                                                                        </div>#}
+{#                                                                </form>#}
+{#                                                            </div>#}
+{#                                                            <script>#}
+{#                                                                // Add event listener to dropdown items to populate category input field#}
+{#                                                                document.querySelectorAll('.category-select').forEach(item => {#}
+{#                                                                    item.addEventListener('click', event => {#}
+{#                                                                        const selectedCategory = event.target.getAttribute('data-category');#}
+{#                                                                        document.getElementById('new_category').value = selectedCategory; // Populate category input field#}
+{#                                                                        document.getElementById('expense_category_button').innerHTML = selectedCategory; // Update dropdown button text#}
+{#                                                                    });#}
+{#                                                                });#}
+{#                                                            </script>#}
+{#                                                    </div>#}
+                                            {# [Currency converter] end #}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- [ Main Content ] end -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- [ Main Content ] end -->
+
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}{% endblock javascripts %}

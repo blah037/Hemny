@@ -28,7 +28,7 @@
                     <br />
                     <br />
 
-                    <!-- Hide the form on success -->
+                        {# Hide the form on success #}
                     {% if success %}
                         <a href="{{ url_for('authentication_blueprint.login') }}" class="btn btn-primary shadow-2 mb-4">Нэвтрэх</a>
                     {% else %}
@@ -80,43 +80,35 @@
 
 <script>
     document.addEventListener("DOMContentLoaded", function() {
-        // Select the password input field and register button
+        // password input field and register button
         const passwordInput = document.getElementById('pwd_create');
         const confirmPwdInput = document.getElementById('confirm_pwd');
         const registerButton = document.querySelector('button[name="register"]');
         const passwordMatchError = document.getElementById('password-match-error');
-        // Select the password strength indicator element
         const passwordStrengthIndicator = document.getElementById('password-strength');
 
         // Function to update the password strength indicator and enable/disable the register button
         function updatePasswordStrength() {
             const password = passwordInput.value;
-            // Regular expressions to check password complexity
             const lowerCaseRegex = /[a-z]/;
             const upperCaseRegex = /[A-Z]/;
             const numberRegex = /\d/;
-            const specialCharacterRegex = /[-!@_?]/; // Add special character regex
-            // Check password against complexity requirements
+            const specialCharacterRegex = /[-!@_?]/;
             const isLowerCase = lowerCaseRegex.test(password);
             const isUpperCase = upperCaseRegex.test(password);
             const isNumber = numberRegex.test(password);
-            const isSpecialCharacter = specialCharacterRegex.test(password); // Check for special characters
-            // Minimum length requirement
-            const isMinimumLength = password.length >= 8; // Minimum length of 8 characters
-            // Calculate password strength based on complexity requirements
+            const isSpecialCharacter = specialCharacterRegex.test(password);
+            const isMinimumLength = password.length >= 8;
             const strength = ((isLowerCase + isUpperCase + isNumber + isSpecialCharacter + isMinimumLength) / 5) * 100;
-            // Update the password strength indicator
             passwordStrengthIndicator.innerHTML = `Нууц үгийн хүч: ${Math.round(strength)}%`;
-            // Change the color based on progress
+            // color based on progress
             if (strength < 50) {
                 passwordStrengthIndicator.style.color = 'red';
             } else if (strength < 80) {
                 passwordStrengthIndicator.style.color = 'yellow';
-                // Disable the register button if the password strength is below 80%
                 registerButton.disabled = true;
             } else {
                 passwordStrengthIndicator.style.color = 'green';
-                // Enable the register button if the password strength is 80% or higher
                 registerButton.disabled = false;
             }
         }
@@ -130,12 +122,12 @@
                 registerButton.disabled = true;
             } else {
                 passwordMatchError.style.display = 'none';
-                // Enable the register button if all conditions are met
+
                 registerButton.disabled = false;
             }
         }
 
-        // Attach input event listeners to the password and confirm password input fields
+        // event listeners for the password and confirm password input fields
         passwordInput.addEventListener('input', function() {
             checkPasswordsMatch();
             updatePasswordStrength();
