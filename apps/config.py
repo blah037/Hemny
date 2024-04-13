@@ -3,7 +3,9 @@
 Copyright (c) 2019 - present AppSeed.us
 """
 
-import os, random, string
+import os
+import random
+import string
 
 
 class Config(object):
@@ -17,15 +19,15 @@ class Config(object):
     if not SECRET_KEY:
         SECRET_KEY = ''.join(random.choice(string.ascii_lowercase) for i in range(32))
 
-    # Social AUTH context
-    SOCIAL_AUTH_GITHUB = False
+    # Load Google OAuth credentials from environment variables
+    GOOGLE_ID = os.getenv('176358603267-eneir8r4hl41comtr0rn96o18b3m65gk.apps.googleusercontent.com', None)
+    GOOGLE_SECRET = os.getenv('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', None)
+    os.environ['AUTHLIB_INSECURE_TRANSPORT'] = '1'
+    # Enable/Disable Google OAuth based on whether credentials are available
+    SOCIAL_AUTH_GOOGLE = bool(GOOGLE_ID and GOOGLE_SECRET)
 
-    GITHUB_ID = os.getenv('GITHUB_ID', None)
-    GITHUB_SECRET = os.getenv('GITHUB_SECRET', None)
-
-    # Enable/Disable GitHub Social Login
-    if GITHUB_ID and GITHUB_SECRET:
-        SOCIAL_AUTH_GITHUB = True
+    # Database configuration
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
 
     import os
 

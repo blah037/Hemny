@@ -50,7 +50,7 @@ def configure_database(app):
         db.session.remove()
 
 
-from apps.authentication.oauth import github_blueprint
+from apps.authentication.oauth import google_blueprint
 
 
 def create_app(config):
@@ -58,6 +58,6 @@ def create_app(config):
     app.config.from_object(config)
     register_extensions(app)
     register_blueprints(app)
-    app.register_blueprint(github_blueprint, url_prefix="/login")
+    app.register_blueprint(google_blueprint, url_prefix="/login")
     configure_database(app)
     return app
