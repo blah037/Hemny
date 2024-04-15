@@ -389,7 +389,20 @@
                                     </div>
                                 </div>
 
+<div>
+      <h5>Latest 50 Emails from alert@golomtbank.com</h5>
+     <ul>
+    {% for email_content in email_contents %}
+        <li>
+            <strong>From:</strong> {{ email_content['payload']['headers'][0]['value'] }}<br>
+            <strong>Subject:</strong> {{ email_content['payload']['headers'][17]['value'] }}<br>
+            <strong>Date:</strong> {{ email_content['payload']['headers'][18]['value'] }}<br>
+            <strong>Message:</strong> {{ email_content['snippet'] }}<br>
+        </li>
+    {% endfor %}
+    </ul>
 
+</div>
 
                             </div>
                         </div>

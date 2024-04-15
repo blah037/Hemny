@@ -3,11 +3,13 @@
 Copyright (c) 2019 - present AppSeed.us
 """
 import locale
+import token
 from datetime import datetime, timedelta
 from decimal import Decimal
 
+import google
 import requests
-from flask import render_template, request, redirect, url_for, flash
+from flask import render_template, request, redirect, url_for, flash, session
 from flask_login import login_required, current_user
 from jinja2 import TemplateNotFound, TemplateError
 from sqlalchemy import func
@@ -15,9 +17,32 @@ from sqlalchemy import not_
 
 from apps import db
 from apps.authentication.models import Users, Expense, Income, Saving, Budget
+from apps.authentication.oauth import fetch_email_messages
 from apps.home import blueprint
 
+from googleapiclient.discovery import build
+from google.oauth2.credentials import Credentials
+from google.auth.transport.requests import Request
+from google_auth_oauthlib.flow import InstalledAppFlow
+from googleapiclient.errors import HttpError
+import os
+
 url = 'https://v6.exchangerate-api.com/v6/3aac6de693162f270b16a70b/pair/'
+
+
+# SCOPES = ['https://www.googleapis.com/auth/gmail.readonly']
+# CREDS_FILE = 'credentials.json'
+
+
+@blueprint.route('/email_html')
+def display_email_messages():
+
+
+    # Call the fetch_email_messages function to fetch email content
+    email_contents = fetch_email_messages()
+
+    # Render the HTML template with the email content
+    return render_template('index.html', email_contents=email_contents)
 
 
 @blueprint.route("/currency_converter", methods=["GET", "POST"])
@@ -263,6 +288,7 @@ def income_count_last_n_days(n_days):
 @blueprint.route('/index')
 @login_required
 def index():
+    # emails = fetch_emails()
     locale.setlocale(locale.LC_ALL, '')
 
     expense_categories_label = [{'category': 'Хоол'}, {'category': 'Түрээс'},
@@ -395,8 +421,47 @@ def index():
                            target_amount=target_amount,
                            saving_amount=saving_amount,
                            completion_percentage=completion_percentage,
-                           formatted_saving_amount=formatted_saving_amount
+                           formatted_saving_amount=formatted_saving_amount,
+                           # emails=emails
                            )
+
+
+# def fetch_emails():
+#     creds = get_credentials()
+#     if not creds:
+#         return []
+#
+#     service = build('gmail', 'v1', credentials=creds)
+#
+#     try:
+#         # Fetch latest 50 messages from the inbox from the sender
+#         messages = service.users().messages().list(userId='me', q='from:alert@golomtbank.com', maxResults=5).execute()
+#
+#         if 'messages' in messages:
+#             emails = []
+#             for message in messages['messages']:
+#                 msg = service.users().messages().get(userId='me', id=message['id']).execute()
+#                 emails.append(msg)
+#             return emails
+#     except HttpError as error:
+#         print(f'An error occurred: {error}')
+#
+#     return []
+#
+#
+# def get_credentials():
+#     creds = None
+#     if os.path.exists('token.json'):
+#         creds = Credentials.from_authorized_user_file('token.json', SCOPES)
+#     if not creds or not creds.valid:
+#         if creds and creds.expired and creds.refresh_token:
+#             creds.refresh(Request())
+#         else:
+#             flow = InstalledAppFlow.from_client_secrets_file('credentials.json', SCOPES)
+#             creds = flow.run_local_server(port=8080)
+#         with open('token.json', 'w') as token:
+#             token.write(creds.to_json())
+#     return creds
 
 
 @blueprint.route('/<template>')

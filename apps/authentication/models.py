@@ -3,7 +3,7 @@
 Copyright (c) 2019 - present AppSeed.us
 """
 
-from flask_login import UserMixin
+from flask_login import UserMixin, LoginManager
 from sqlalchemy.exc import SQLAlchemyError
 
 from sqlalchemy.orm import relationship
@@ -46,6 +46,24 @@ class Users(db.Model, UserMixin):
 
     def __repr__(self):
         return f"User('{self.username}','{self.email}')"
+
+
+class OAuth(OAuthConsumerMixin, db.Model):
+    provider_user_id = db.Column(db.String(256), unique=True, nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey(Users.id), nullable=False)
+    user = db.relationship(Users)
+
+
+# setup login manager
+login_manager = LoginManager()
+login_manager.login_view = "google.login"
+
+
+class UserTokens(OAuthConsumerMixin, db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    access_token = db.Column(db.String(255), nullable=False)
+    refresh_token = db.Column(db.String(255), nullable=False)
 
 
 class Budget(db.Model):
@@ -146,8 +164,3 @@ def request_loader(request):
     username = request.form.get('username')
     user = Users.query.filter_by(username=username).first()
     return user if user else None
-
-
-class OAuth(OAuthConsumerMixin, db.Model):
-    user_id = db.Column(db.Integer, db.ForeignKey("users.id", ondelete="cascade"), nullable=False)
-    user = db.relationship(Users)

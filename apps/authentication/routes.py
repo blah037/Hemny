@@ -16,6 +16,7 @@ from apps.authentication import blueprint
 from apps.authentication.forms import CreateAccountForm, LoginForm
 from apps.authentication.models import Users
 from apps.authentication.util import verify_pass
+from flask_dance.contrib.google import make_google_blueprint, google
 
 
 @blueprint.route('/')
@@ -25,7 +26,13 @@ def route_default():
 
 # Login & Registration
 
-
+@blueprint.route("/google")
+def login_google():
+    if not google.authorized:
+        return redirect(url_for("google.login"))
+    resp = google.get("/oauth2/v1/userinfo")
+    assert resp.ok, resp.text
+    return "You are {email} on Google".format(email=resp.json()["email"])
 
 
 @blueprint.route('/login', methods=['GET', 'POST'])

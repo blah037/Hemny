@@ -20,14 +20,12 @@ class Config(object):
         SECRET_KEY = ''.join(random.choice(string.ascii_lowercase) for i in range(32))
 
     # Load Google OAuth credentials from environment variables
-    GOOGLE_ID = os.getenv('176358603267-eneir8r4hl41comtr0rn96o18b3m65gk.apps.googleusercontent.com', None)
-    GOOGLE_SECRET = os.getenv('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', None)
-    os.environ['AUTHLIB_INSECURE_TRANSPORT'] = '1'
+    GOOGLE_OAUTH_CLIENT_ID = os.environ.get("GOOGLE_OAUTH_CLIENT_ID")
+    GOOGLE_OAUTH_CLIENT_SECRET = os.environ.get("GOOGLE_OAUTH_CLIENT_SECRET")
     # Enable/Disable Google OAuth based on whether credentials are available
-    SOCIAL_AUTH_GOOGLE = bool(GOOGLE_ID and GOOGLE_SECRET)
+    SOCIAL_AUTH_GOOGLE = bool(GOOGLE_OAUTH_CLIENT_ID and GOOGLE_OAUTH_CLIENT_SECRET)
 
     # Database configuration
-    SQLALCHEMY_TRACK_MODIFICATIONS = False
 
     import os
 
